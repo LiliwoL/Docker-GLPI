@@ -1,0 +1,46 @@
+version: "3.2"
+
+services:
+#MariaDB Container
+  mariadb:
+    image: mariadb:10.7
+    container_name: mariadb
+    hostname: mariadb
+    volumes:
+      - ./db_data:/var/lib/mysql
+    env_file:
+      - ./mariadb.env
+    restart: always
+    networks:
+      - glpi
+
+#GLPI Container
+  glpi:
+    image: diouxx/glpi
+    container_name : glpi
+    hostname: glpi
+    ports:
+      - "800:80" # Accès Web
+      - "65234:65234" # Accès GLPI Agent
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./app/:/var/www/html/glpi
+    environment:
+      - TIMEZONE=Europe/Brussels
+    restart: always
+    networks:
+      - glpi
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
+    networks:
+      - glpi
+
+
+networks:
+  glpi:
+    driver: bridge
